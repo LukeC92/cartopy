@@ -110,6 +110,12 @@ class FeatureArtist(matplotlib.artist.Artist):
             self.set_zorder(1)
 
         self._feature = feature
+        
+    def get_feature(self):
+        """
+        Returns the feature of this FeatureArtist.
+        """
+        return self._feature
 
     @matplotlib.artist.allow_rasterization
     def draw(self, renderer, *args, **kwargs):
