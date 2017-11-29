@@ -273,7 +273,7 @@ class GeoAxes(matplotlib.axes.Axes):
     def add_image(self, factory, target_z, *args, **kwargs):
         """
         Adds an image "factory" to the Axes.
-        
+
         Any image "factory" added, will be asked to retrieve an image
         with associated metadata for a given bounding box at draw time.
         The advantage of this approach is that the limits of the map
@@ -282,11 +282,11 @@ class GeoAxes(matplotlib.axes.Axes):
         added.
 
         Currently an image "factory" is just an object with an
-        ``image_for_domain`` method with the signature 
+        ``image_for_domain`` method with the signature
         ``image_for_domain(self, target_domain, target_z)``. Examples of image
         factories are :class:`cartopy.io.img_nest.NestedImageCollection` and
         :class:`cartopy.io.image_tiles.GoogleTiles`.
-                        
+
         All other args and kwargs are used in :func:`matplotlib.pyplot.imshow`.
 
         Args:
