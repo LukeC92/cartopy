@@ -270,10 +270,10 @@ class GeoAxes(matplotlib.axes.Axes):
         self.img_factories = []
         self._done_img_factory = False
 
-    def add_image(self, factory, *args, **kwargs):
+    def add_image(self, factory, target_z, *args, **kwargs):
         """
         Adds an image "factory" to the Axes.
-
+        
         Any image "factory" added, will be asked to retrieve an image
         with associated metadata for a given bounding box at draw time.
         The advantage of this approach is that the limits of the map
@@ -281,15 +281,23 @@ class GeoAxes(matplotlib.axes.Axes):
         be deferred until everything which can effect the limits has been
         added.
 
-        Currently an image "factory" is just an object with
-        a ``image_for_domain`` method. Examples of image factories
-        are :class:`cartopy.io.img_nest.NestedImageCollection` and
+        Currently an image "factory" is just an object with an
+        ``image_for_domain`` method with the signature 
+        ``image_for_domain(self, target_domain, target_z)``. Examples of image
+        factories are :class:`cartopy.io.img_nest.NestedImageCollection` and
         :class:`cartopy.io.image_tiles.GoogleTiles`.
+                        
+        All other args and kwargs are used in :func:`matplotlib.pyplot.imshow`.
 
+        Args:
+
+            * factory - The image factory containing the relevant images.
+            * target_z - The name which specifies the target zoom level
+                         (resolution) of the required images.
         """
         if hasattr(factory, 'image_for_domain'):
             # XXX TODO: Needs deprecating.
-            self.img_factories.append([factory, args, kwargs])
+            self.img_factories.append([factory, target_z, args, kwargs])
         else:
             # Args and kwargs not allowed.
             assert not bool(args) and not bool(kwargs)
@@ -361,11 +369,11 @@ class GeoAxes(matplotlib.axes.Axes):
         #       caching the resulting image;
         #       buffering the result by 10%...;
         if not self._done_img_factory:
-            for factory, args, kwargs in self.img_factories:
+            for factory, target_z, args, kwargs in self.img_factories:
                 img, extent, origin = factory.image_for_domain(
-                    self._get_extent_geom(factory.crs), args[0])
+                    self._get_extent_geom(factory.crs), target_z)
                 self.imshow(img, extent=extent, origin=origin,
-                            transform=factory.crs, *args[1:], **kwargs)
+                            transform=factory.crs, *args, **kwargs)
         self._done_img_factory = True
 
         return matplotlib.axes.Axes.draw(self, renderer=renderer,
