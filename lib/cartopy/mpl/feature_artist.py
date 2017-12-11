@@ -122,26 +122,26 @@ class FeatureArtist(matplotlib.artist.Artist):
         """
         
         ax = self.axes
-        ref_crs = ccrs.PlateCarree()
-        resolutions = ['10m', '50m', '110m']
-        thresholds = [25, 55]
-    
+        ref_crs = self._feature._crs
+        scale = '110m'
+        # Upper limit on extent in degrees
+        scale_limits = (('110m', 55.0),
+                        ('50m', 25.0),
+                        ('10m', 0.1))
+        
+        
         # Get extent of ax and determine minimum extent
         extent = ax.get_extent(crs=ref_crs)
-        xlim = extent[1] - extent[0]
-        ylim = extent[3] - extent[2]
-        min_extent = min(xlim, ylim)
-    
-        # Print statement to help with debugging
-        #print("resolve: min_extent = {}".format(min_extent))
-    
-        # Compare minimum extent to defined thresholds, return a resolution
-        if min_extent <= thresholds[0]:
-            return resolutions[0]
-        elif thresholds[0] < min_extent <= thresholds[1]:
-            return resolutions[1]
-        else:
-            return resolutions[2]
+        width = abs(extent[1] - extent[0])
+        height = abs(extent[3] - extent[2])
+        min_extent = min(width, height)
+        
+        if extent is not None:
+            if min_extent != 0:
+                for scale, limit in scale_limits:
+                    if min_extent > limit:
+                        break
+        return scale
 
         
     def rescale_feature(self, new_scale):
