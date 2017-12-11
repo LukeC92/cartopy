@@ -151,7 +151,7 @@ class NaturalEarthFeature(Feature):
     See http://www.naturalearthdata.com/
 
     """
-    def __init__(self, category, name, scale, **kwargs):
+    def __init__(self, category, name, scale, auto=False, **kwargs):
         """
         Args:
 
@@ -163,6 +163,8 @@ class NaturalEarthFeature(Feature):
             The dataset scale, i.e. one of '10m', '50m', or '110m'.
             Corresponding to 1:10,000,000, 1:50,000,000, and 1:110,000,000
             respectively.
+        * auto:
+            Whether or not the feature autoscales.
 
         Kwargs:
             Keyword arguments to be used when drawing this feature.
@@ -173,6 +175,7 @@ class NaturalEarthFeature(Feature):
         self.category = category
         self.name = name
         self.scale = scale
+        self.auto = auto
 
     def geometries(self):
         key = (self.name, self.category, self.scale)
