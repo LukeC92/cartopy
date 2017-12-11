@@ -116,6 +116,12 @@ class FeatureArtist(matplotlib.artist.Artist):
         Returns the feature of this FeatureArtist.
         """
         return self._feature
+    
+    def set_feature(self, feature):
+        """
+        Changes the feature of this FeatureArtist.
+        """
+        self._feature = feature
 
     @matplotlib.artist.allow_rasterization
     def draw(self, renderer, *args, **kwargs):
