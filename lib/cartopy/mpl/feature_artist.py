@@ -27,8 +27,9 @@ import weakref
 
 import matplotlib.artist
 import matplotlib.collections
-
+import cartopy.feature.NaturalEarthFeature
 import cartopy.mpl.patch as cpatch
+import cartopy.crs as ccrs
 
 
 class _GeomKey(object):
@@ -110,7 +111,45 @@ class FeatureArtist(matplotlib.artist.Artist):
             self.set_zorder(1)
 
         self._feature = feature
+
+    def resolve(self):
+        """
+        Determine the correct coastline resolution to use based on the axes extent
+        :param ax: GeoAxes object
+        :return resolution: string determining the coastline resolution
+    
+        """
         
+        ax = self.axes
+        ref_crs = ccrs.PlateCarree()
+        resolutions = ['10m', '50m', '110m']
+        thresholds = [25, 55]
+    
+        # Get extent of ax and determine minimum extent
+        extent = ax.get_extent(crs=ref_crs)
+        xlim = extent[1] - extent[0]
+        ylim = extent[3] - extent[2]
+        min_extent = min(xlim, ylim)
+    
+        # Print statement to help with debugging
+        #print("resolve: min_extent = {}".format(min_extent))
+    
+        # Compare minimum extent to defined thresholds, return a resolution
+        if min_extent <= thresholds[0]:
+            return resolutions[0]
+        elif thresholds[0] < min_extent <= thresholds[1]:
+            return resolutions[1]
+        else:
+            return resolutions[2]
+
+        
+    def rescale_feature(self, new_scale):
+        """
+        Rescales feature using new_scale
+        """
+        self._feature = self._feature.with_scale(new_scale)
+        
+    
     def get_feature(self):
         """
         Returns the feature of this FeatureArtist.
@@ -131,6 +170,14 @@ class FeatureArtist(matplotlib.artist.Artist):
         object has been added.
 
         """
+        # playground
+        if isinstance(self._feature, cartopy.feature.NaturalEarthFeature) and self._feature.auto:
+                print("auto is found!")
+                print("resolve() returned {}".format(self.resolve()))
+                self.rescale_feature(self.resolve())
+                print("rescale_feature() called: Successful?")
+
+        
         if not self.get_visible():
             return
 
