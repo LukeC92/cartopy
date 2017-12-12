@@ -163,8 +163,7 @@ class NaturalEarthFeature(Feature):
             The dataset scale, i.e. one of '10m', '50m', or '110m'.
             Corresponding to 1:10,000,000, 1:50,000,000, and 1:110,000,000
             respectively.
-        * autoscale:
-            Whether or not the feature autoscales.
+            If set to 'auto', autoscaling used.
 
         Kwargs:
             Keyword arguments to be used when drawing this feature.
@@ -183,6 +182,10 @@ class NaturalEarthFeature(Feature):
             self.autoscale = False
 
     def geometries(self):
+        """
+        Returns an iterator of (shapely) geometries for this feature.
+
+        """
         key = (self.name, self.category, self.scale)
         if key not in _NATURAL_EARTH_GEOM_CACHE:
             path = shapereader.natural_earth(resolution=self.scale,
@@ -198,9 +201,9 @@ class NaturalEarthFeature(Feature):
     def intersecting_geometries(self, extent):
         """
         Returns an iterator of shapely geometries that intersect with
-        the given extent. The extent is assumed to be in the CRS of
-        the feature. If extent is None, the method returns all
-        geometries for this dataset.
+        the given extent.
+        The extent is assumed to be in the CRS of the feature.
+        If extent is None, the method returns all geometries for this dataset.
 
         """
 
@@ -235,7 +238,7 @@ class NaturalEarthFeature(Feature):
     def _scale_from_extent(self, extent):
         """
         Returns the appropriate scale (e.g. '50m') for the given extent
-        expressed in PlateCarree CRS.
+        expressed in CRS of the feature (PlateCarree()).
 
         """
         # Default to 1:10,000,000 scale
