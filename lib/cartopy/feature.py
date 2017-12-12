@@ -238,8 +238,8 @@ class NaturalEarthFeature(Feature):
 
         if extent is not None:
             # Upper limit on extent in degrees.
-            scale_limits = (('110m', 55.0),
-                            ('50m', 25.0),
+            scale_limits = (('110m', 50.0),
+                            ('50m', 15.0),
                             ('10m', 0.0))
 
             width = abs(extent[1] - extent[0])
