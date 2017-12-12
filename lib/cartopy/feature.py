@@ -151,7 +151,7 @@ class NaturalEarthFeature(Feature):
     See http://www.naturalearthdata.com/
 
     """
-    def __init__(self, category, name, scale, autoscale=False, **kwargs):
+    def __init__(self, category, name, scale, **kwargs):
         """
         Args:
 
@@ -175,7 +175,12 @@ class NaturalEarthFeature(Feature):
         self.category = category
         self.name = name
         self.scale = scale
-        self.autoscale = autoscale
+
+        # Use autoscaling if scale == 'auto'
+        if self.scale == 'auto':
+            self.autoscale = True
+        else:
+            self.autoscale = False
 
     def geometries(self):
         key = (self.name, self.category, self.scale)
