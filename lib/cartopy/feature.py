@@ -198,7 +198,12 @@ class NaturalEarthFeature(Feature):
         geometries for this dataset.
 
         """
-        # Autoscale decision here
+
+        if self.autoscale:
+            self.scale = self._scale_from_extent(extent)
+        else:
+            self.scale = self.scale
+
         if extent is not None:
             extent_geom = sgeom.box(extent[0], extent[2],
                                     extent[1], extent[3])
@@ -221,6 +226,32 @@ class NaturalEarthFeature(Feature):
         """
         return NaturalEarthFeature(self.category, self.name, new_scale,
                                    **self.kwargs)
+
+    def _scale_from_extent(self, extent):
+        """
+        Returns the appropriate scale (e.g. '50m') for the given extent
+        expressed in PlateCarree CRS.
+
+        """
+        # Default to 1:10,000,000 scale
+        scale = '110m'
+
+        if extent is not None:
+            # Upper limit on extent in degrees.
+            scale_limits = (('110m', 55.0),
+                            ('50m', 25.0),
+                            ('10m', 0.0))
+
+            width = abs(extent[1] - extent[0])
+            height = abs(extent[3] - extent[2])
+            min_extent = min(width, height)
+
+            if min_extent != 0:
+                for scale, limit in scale_limits:
+                    if min_extent > limit:
+                        break
+
+        return scale
 
 
 class GSHHSFeature(Feature):
