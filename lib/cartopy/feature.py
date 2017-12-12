@@ -151,7 +151,6 @@ class NaturalEarthFeature(Feature):
     See http://www.naturalearthdata.com/
 
     """
-
     def __init__(self, category, name, scale, autoscale=False, **kwargs):
         """
         Args:
