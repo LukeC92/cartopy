@@ -28,3 +28,47 @@ class TestFeatures(object):
         assert new_lakes.kwargs == cfeature.LAKES.kwargs
         assert new_lakes.category == cfeature.LAKES.category
         assert new_lakes.name == cfeature.LAKES.name
+    
+    def test_autoscale_keyword(self):
+        # Check that autoscale variants can be passed as the scale argument
+        new_borders = cfeature.NaturalEarthFeature('cultural',
+                                                   'admin_0_boundary_lines_land',
+                                                   'auto', 
+                                                   edgecolor='black',
+                                                   facecolor='none')
+        
+        new_coastline = cfeature.NaturalEarthFeature('physical',
+                                                     'coastline',
+                                                     'a',
+                                                     edgecolor='black',
+                                                     facecolor='none')
+        assert new_borders.scale == 'auto'
+        assert new_borders.autoscale == True
+        assert new_borders.scale == 'a'
+        assert new_borders.autoscale == True
+
+                
+    def test_autoscale_default(self):
+        # Check that autoscaling not used by default
+        new_lakes = cfeature.LAKES
+        
+        assert new_lakes.scale == '110m'
+        assert new_lakes.autoscale == False
+        
+    def test_autoscale_function(self):
+        # Check that scale changes with extent when autoscale==True
+        
+        new_borders = cfeature.NaturalEarthFeature('cultural',
+                                                   'admin_0_boundary_lines_land',
+                                                   'auto', 
+                                                   edgecolor='black',
+                                                   facecolor='none')
+        
+        extent = (-6, -8, 56, 59)
+        
+        new_scale = new_borders._scale_from_extent(extent)
+        
+        assert new_borders.scale == 'auto'
+        assert new_scale == '10m'
+        
+        
