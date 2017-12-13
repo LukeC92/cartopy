@@ -175,8 +175,8 @@ class NaturalEarthFeature(Feature):
         self.name = name
         self.scale = scale
 
-        # Use autoscaling if scale == 'auto'
-        if self.scale == 'auto':
+        # Use autoscaling if scale == 'a', 'auto' or 'autoscale'
+        if scale.lower() in ('a', 'auto', 'autoscale'):
             self.autoscale = True
         else:
             self.autoscale = False
