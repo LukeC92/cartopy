@@ -1,3 +1,21 @@
+What's New in cartopy 0.16
+==========================
+
+:Release: 0.16.0
+:Date: December 2017
+
+Features
+--------
+
+* The :class:`cartopy.feature.NaturalEarthFeature` class now allows the
+`scale` argument to be set to `'auto'`. This will automatically choose the
+appropriate feature scale from the GeoAxes extent. This can also be used
+interactively while panning and zooming in a figure.
+
+
+-----------
+
+
 What's New in cartopy 0.15
 ==========================
 
