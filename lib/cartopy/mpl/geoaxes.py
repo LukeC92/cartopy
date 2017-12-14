@@ -414,7 +414,7 @@ class GeoAxes(matplotlib.axes.Axes):
 
             * resolution - a named resolution to use from the Natural Earth
                            dataset. Currently can be one of "110m", "50m", and
-                           "10m".
+                           "10m". If set to 'auto', autoscaling is used.
 
         .. note::
 
