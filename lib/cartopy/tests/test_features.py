@@ -108,9 +108,10 @@ class TestFeatures(object):
 
     def test_autoscale_small_draw(self):
         # Check that scale changes with extent when autoscale==True
-        ax = plt.axes(projection=ccrs.PlateCarree())
-        ax.add_feature(auto_land)
-        ax.set_extent(small_extent)
-        ax.draw()
+        auto_land.intersecting_geometries(small_extent)
+#        ax = plt.axes(projection=ccrs.PlateCarree())
+#        ax.add_feature(auto_land)
+#        ax.set_extent(small_extent)
+#        ax.draw()
         #new_scale = auto_land._scale_from_extent(small_extent)
         assert auto_land.scale == '10m'
