@@ -2,7 +2,7 @@ What's New in cartopy 0.16
 ==========================
 
 :Release: 0.16.0
-:Date: 14th December 2017
+:Date:
 
 Features
 --------
