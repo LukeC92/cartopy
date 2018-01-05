@@ -175,11 +175,6 @@ class NaturalEarthFeature(Feature):
         self.name = name
         self.scale = scale
 
-        # Use autoscaling if scale == 'a', 'auto' or 'autoscale'
-        if scale == 'auto':
-            self.autoscale = True
-        else:
-            self.autoscale = False
 
     def geometries(self):
         """
@@ -198,25 +193,6 @@ class NaturalEarthFeature(Feature):
 
         return iter(geometries)
 
-    def intersecting_geometries(self, extent):
-        """
-        Returns an iterator of shapely geometries that intersect with
-        the given extent.
-        The extent is assumed to be in the CRS of the feature.
-        If extent is None, the method returns all geometries for this dataset.
-        """
-
-        if self.autoscale:
-            self.scale = self._scale_from_extent(extent)
-
-        if extent is not None:
-            extent_geom = sgeom.box(extent[0], extent[2],
-                                    extent[1], extent[3])
-            return (geom for geom in self.geometries() if
-                    geom is not None and extent_geom.intersects(geom))
-        else:
-            return self.geometries()
-
     def with_scale(self, new_scale):
         """
         Return a copy of the feature with a new scale.
@@ -232,10 +208,39 @@ class NaturalEarthFeature(Feature):
         return NaturalEarthFeature(self.category, self.name, new_scale,
                                    **self.kwargs)
 
+
+class AutoNaturalEarthFeature(NaturalEarthFeature):
+    """
+    An interface to Natural Earth shapefiles which can choose the scale
+    based on the axes extent.
+
+    See http://www.naturalearthdata.com/
+
+    """
+    def __init__(self, category, name, scales, **kwargs):
+        """
+        Args:
+
+        * category:
+            The category of the dataset, i.e. either 'cultural' or 'physical'.
+        * name:
+            The name of the dataset, e.g. 'admin_0_boundary_lines_land'.
+        * scales:
+            The list of dataset scales the autoscaling will choose from.
+
+        Kwargs:
+            Keyword arguments to be used when drawing this feature.
+
+        """
+        super(AutoNaturalEarthFeature, self).__init__(category, name, scales[0], **kwargs)
+        self.category = category
+        self.name = name
+        self.scales = scales
+        
     def _scale_from_extent(self, extent):
         """
-        Returns the appropriate scale (e.g. '50m') for the given extent
-        expressed in CRS of the feature (PlateCarree()).
+        Returns the appropriate scale from the feature's scales for the given
+        extent expressed in CRS of the feature (PlateCarree()).
 
         """
         # Default to 1:110,000,000 scale
@@ -257,6 +262,19 @@ class NaturalEarthFeature(Feature):
                         break
 
         return scale
+
+    def intersecting_geometries(self, extent):
+        """
+        Returns an iterator of shapely geometries that intersect with
+        the given extent.
+        The extent is assumed to be in the CRS of the feature.
+        If extent is None, the method returns all geometries for this dataset.
+        """
+
+        self.scale = self._scale_from_extent(extent)
+        super(AutoNaturalEarthFeature, self).intersecting_geometries(extent)
+
+
 
 
 class GSHHSFeature(Feature):
