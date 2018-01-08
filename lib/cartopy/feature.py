@@ -227,6 +227,7 @@ class AutoNaturalEarthFeature(NaturalEarthFeature):
             The name of the dataset, e.g. 'admin_0_boundary_lines_land'.
         * scales:
             The list of dataset scales the autoscaling will choose from.
+            10m 50m 110m.
 
         Kwargs:
             Keyword arguments to be used when drawing this feature.
@@ -248,9 +249,14 @@ class AutoNaturalEarthFeature(NaturalEarthFeature):
 
         if extent is not None:
             # Upper limit on extent in degrees.
-            scale_limits = (('110m', 50.0),
-                            ('50m', 15.0),
-                            ('10m', 0.0))
+            original_limits = (('110m', 50.0),
+                               ('50m', 15.0),
+                               ('10m', 0.0))
+            scale_limits = ()
+
+            for scale, limit in original_limits:
+                if scale in self.scales:
+                    scale_limits = scale_limits + ((scale, limit), )
 
             width = abs(extent[1] - extent[0])
             height = abs(extent[3] - extent[2])
@@ -266,13 +272,13 @@ class AutoNaturalEarthFeature(NaturalEarthFeature):
     def intersecting_geometries(self, extent):
         """
         Returns an iterator of shapely geometries that intersect with
-        the given extent.
+        the given extent using a scale based on the extent.
         The extent is assumed to be in the CRS of the feature.
         If extent is None, the method returns all geometries for this dataset.
         """
 
         self.scale = self._scale_from_extent(extent)
-        super(AutoNaturalEarthFeature, self).intersecting_geometries(extent)
+        return super(AutoNaturalEarthFeature, self).intersecting_geometries(extent)
 
 
 
