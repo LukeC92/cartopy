@@ -226,18 +226,29 @@ class AutoNaturalEarthFeature(NaturalEarthFeature):
         * name:
             The name of the dataset, e.g. 'admin_0_boundary_lines_land'.
         * scales:
-            The list of dataset scales the autoscaling will choose from.
-            10m 50m 110m.
+            The list of dataset scales the autoscaling will choose from. The
+            list should only have elements from '10m', '50m' or '110m'.
 
         Kwargs:
             Keyword arguments to be used when drawing this feature.
 
         """
-        super(AutoNaturalEarthFeature, self).__init__(category, name, scales[0], **kwargs)
+        super(AutoNaturalEarthFeature, self).__init__(category, name,
+                                                      scales[0], **kwargs)
         self.category = category
         self.name = name
         self.scales = scales
-        
+        self.original_limits = (('110m', 50.0), ('50m', 15.0), ('10m', 0.0))
+        self.scale_limits = ()
+
+    def _set_scale_limits(self):
+        """
+        Sets the scale limits based on the scales provided by the user.
+        """
+        for scale, limit in self.original_limits:
+            if scale in self.scales:
+                self.scale_limits = self.scale_limits + ((scale, limit), )
+
     def _scale_from_extent(self, extent):
         """
         Returns the appropriate scale from the feature's scales for the given
@@ -249,21 +260,14 @@ class AutoNaturalEarthFeature(NaturalEarthFeature):
 
         if extent is not None:
             # Upper limit on extent in degrees.
-            original_limits = (('110m', 50.0),
-                               ('50m', 15.0),
-                               ('10m', 0.0))
-            scale_limits = ()
-
-            for scale, limit in original_limits:
-                if scale in self.scales:
-                    scale_limits = scale_limits + ((scale, limit), )
+            self._set_scale_limits()
 
             width = abs(extent[1] - extent[0])
             height = abs(extent[3] - extent[2])
             min_extent = min(width, height)
 
             if min_extent != 0:
-                for scale, limit in scale_limits:
+                for scale, limit in self.scale_limits:
                     if min_extent > limit:
                         break
 

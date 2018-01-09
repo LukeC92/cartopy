@@ -23,7 +23,9 @@ small_extent = (-6, -8, 56, 59)
 medium_extent = (-20, 20, 20, 60)
 large_extent = (-40, 40, 0, 80)
 
-auto_land = cfeature.AutoNaturalEarthFeature('physical', 'land', ['110m','50m','10m'])
+auto_land = cfeature.AutoNaturalEarthFeature('physical', 'land',
+                                              ['110m', '50m', '10m'])
+
 
 class TestFeatures(object):
     def test_change_scale(self):
@@ -34,6 +36,73 @@ class TestFeatures(object):
         assert new_lakes.kwargs == cfeature.LAKES.kwargs
         assert new_lakes.category == cfeature.LAKES.category
         assert new_lakes.name == cfeature.LAKES.name
+
+#
+#    def test_autoscale_keyword(self):
+#        # Check that autoscale variants can be passed as the scale
+#        # argument
+#        autoscale_borders = cfeature.NaturalEarthFeature(
+#                                   'cultural', 'admin_0_boundary_lines_land',
+#                                   'autoscale')
+#
+#        a_coastline = cfeature.NaturalEarthFeature('physical', 'coastline',
+#                                                   'a')
+#
+#        assert autoscale_borders.scale == 'autoscale'
+#        assert autoscale_borders.autoscale
+#        assert a_coastline.scale == 'a'
+#        assert a_coastline.autoscale
+#        assert auto_land.scale == 'auto'
+#        assert auto_land.autoscale
+
+#    def test_autoscale_default(self):
+#        # Check that autoscaling is not used by default.
+#        ten_borders = cfeature.NaturalEarthFeature(
+#           'cultural', 'admin_0_boundary_lines_land',
+#           '10m')
+#
+#        fifty_coastline = cfeature.NaturalEarthFeature('physical',
+#                                                       'coastline',
+#                                                       '50m')
+#
+#        hundredten_land = cfeature.NaturalEarthFeature('physical', 'land',
+#                                                       '110m')
+#
+#        assert cfeature.LAKES.scale == '110m'
+#        assert not cfeature.LAKES.autoscale
+#        assert ten_borders.scale == '10m'
+#        assert not ten_borders.autoscale
+#        assert fifty_coastline.scale == '50m'
+#        assert not fifty_coastline.autoscale
+#        assert hundredten_land.scale == '110m'
+#        assert not hundredten_land.autoscale
+
+    def test_scale_limits(self):
+        one_scale_coastline = cfeature.AutoNaturalEarthFeature('physical',
+                                                        'coastline', ['110m'])
+        two_scale_coastline = cfeature.AutoNaturalEarthFeature('physical',
+                                                 'coastline', ['110m', '10m'])
+        three_scale_coastline = cfeature.AutoNaturalEarthFeature('physical',
+                                          'coastline', ['110m', '50m', '10m'])
+        four_scale_coastline = cfeature.AutoNaturalEarthFeature('physical',
+                                   'coastline', ['110m', '75m', '50m', '10m'])
+        assert one_scale_coastline.scale_limits == ()
+        assert two_scale_coastline.scale_limits == ()
+        assert three_scale_coastline.scale_limits == ()
+        assert four_scale_coastline.scale_limits == ()
+        one_scale_coastline._set_scale_limits()
+        two_scale_coastline._set_scale_limits()
+        three_scale_coastline._set_scale_limits()
+        four_scale_coastline._set_scale_limits()
+        assert one_scale_coastline.scale_limits == (('110m', 50.0),)
+        assert two_scale_coastline.scale_limits == (('110m', 50.0),
+                                                    ('10m', 0.0))
+        assert three_scale_coastline.scale_limits == (('110m', 50.0),
+                                                      ('50m', 15.0),
+                                                      ('10m', 0.0))
+        assert four_scale_coastline.scale_limits == (('110m', 50.0),
+                                                     ('50m', 15.0),
+                                                     ('10m', 0.0))
 
     def test_scale_from_extent(self):
         # Check that _scale_from_extent produces the appropriate
